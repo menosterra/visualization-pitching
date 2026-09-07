@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitching Visualization</title>
+    <meta name="description"
+        content="Compact 2x2 multi-perspective pitching mechanics visualizer based on adult male elite motion capture datasets (Driveline OBP).">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for Beautiful Math Formatting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- OBP Elite Motion Data -->
+    <script src="pitching_data_elite.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #151b23;
+            --panel-bg: #18202a;
+            --primary: #66fcf1;
+            --primary-dark: #45a29e;
+            --text-main: #c5c6c7;
+            --text-bright: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --danger: #ef476f;
+            --success: #06d6a0;
+            --gold: #ffd166;
+            --blue: #3a86ff;
+            --purple: #b5179e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Slim Compact Header */
+        header {
+            width: 100%;
+            background: rgba(21, 27, 35, 0.95);
+            padding: 8px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            font-size: 1.18rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(102, 252, 241, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Main Container */
+        main {
+            width: 98%;
+            max-width: 1500px;
+            margin: 8px auto 10px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        /* ------------------------------------------------------------- */
+        /* 2x2 Multi-View & Unified Chart Grid                           */
+        /* ------------------------------------------------------------- */
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .camera-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .camera-panel.center-panel {
+            border-color: rgba(255, 209, 102, 0.3);
+            background: linear-gradient(180deg, #1e2836 0%, #151b23 100%);
+        }
+
+        .panel-tag {
+            padding: 5px 12px;
+            background: rgba(11, 12, 16, 0.85);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+            height: 28px;
+        }
+
+        .canvas-container {
+            width: 100%;
+            position: relative;
+            background: #090a0d;
+        }
+
+        .canvas-container.view-panel-height {
+            height: 310px;
+        }
+
+        canvas.mocap-canvas,
+        canvas.sync-chart-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.78rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #c5c6c7;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .chart-cursor-info {
+            font-size: 0.82rem;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 4px 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'Outfit', sans-serif;
+            align-items: center;
+            height: 28px;
+        }
+
+        .chart-cursor-info span {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .chart-cursor-info strong {
+            display: inline-block;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            margin-left: 3px;
+        }
+
+        #val-hip-deg,
+        #val-shoulder-deg {
+            min-width: 48px;
+        }
+
+        #val-sep-deg {
+            min-width: 42px;
+        }
+
+        /* ------------------------------------------------------------- */
+        /* Playback Controls Bar                                         */
+        /* ------------------------------------------------------------- */
+        .controls-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-bright);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(102, 252, 241, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .control-btn.primary-btn {
+            background: var(--primary);
+            color: #0b0c10;
+            border-color: var(--primary);
+            font-weight: 700;
+        }
+
+        .scrubber-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 5px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        input[type=range] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            background: var(--primary);
+            -webkit-appearance: none;
+            margin-top: -5px;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .time-display {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 95px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .speed-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 3px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .speed-btn {
+            background: transparent;
+            border: none;
+            color: #8f9499;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-btn.active {
+            background: rgba(102, 252, 241, 0.15);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(7, 8, 10, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            margin: 5% auto;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .close-modal {
+            color: #8f9499;
+            position: absolute;
+            right: 20px;
+            top: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        .modal-content h2 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--primary);
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            font-size: 1.25rem;
+        }
+
+        .modal-body {
+            color: var(--text-main);
+            font-size: 0.88rem;
+            line-height: 1.55;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .profile-section {
+            margin-top: 12px;
+        }
+
+        .profile-section h4 {
+            color: var(--text-bright);
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .profile-section ul {
+            margin-left: 18px;
+            margin-bottom: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 6px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table th {
+            color: var(--primary);
+            background: rgba(102, 252, 241, 0.05);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* Responsive Mobile Layout                                      */
+        /* ------------------------------------------------------------- */
+        @media (max-width: 860px) {
+            header {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px 14px;
+            }
+
+            .grid-2x2 {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-container.view-panel-height {
+                height: 280px;
+            }
+
+            .controls-card {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 10px 12px;
+                justify-content: space-between;
+            }
+
+            .scrubber-wrap {
+                order: 3;
+                width: 100%;
+                flex: 1 1 100%;
+            }
+
+            .btn-group {
+                order: 1;
+            }
+
+            .speed-group {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.05rem;
+            }
+
+            .canvas-container.view-panel-height {
+                height: 240px;
+            }
+
+            .chart-cursor-info {
+                height: auto;
+                flex-wrap: wrap;
+                gap: 4px 10px;
+                padding: 6px 8px;
+                font-size: 0.75rem;
+                justify-content: space-around;
+            }
+
+            .control-btn {
+                padding: 5px 9px;
+                font-size: 0.78rem;
+            }
+
+            .time-display {
+                font-size: 0.78rem;
+                min-width: 80px;
+            }
+        }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            color: #6c7278;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Compact Slim Header -->
+    <header>
+        <h1><span>⚾</span> Pitching Visualization</h1>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 0.78rem; color: #8f9499; font-family: 'Inter', sans-serif;">Designed by <strong style="color: #c5c6c7;">JHS</strong> (<a href="https://www.youtube.com/@JHSgroove" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none;">YouTube @JHSgroove</a>)</span>
+            <button id="btn-dataset-info" class="header-btn">
+                <span>📊</span> Dataset Profile & License
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- --------------------------------------------------------- -->
+        <!-- 2x2 Grid Layout                                           -->
+        <!-- Top-Left: Top View       | Top-Right: Unified Chart       -->
+        <!-- Bottom-Left: 3rd Base    | Bottom-Right: Catcher View     -->
+        <!-- --------------------------------------------------------- -->
+        <section class="grid-2x2" aria-label="Pitching Mechanics 2x2 Dashboard">
+            <!-- Cell 1: Top View (Top-Left) -->
+            <div class="camera-panel">
+                <div class="panel-tag">
+                    <span>⬆️ Top View</span>
+                </div>
+                <div class="canvas-container view-panel-height">
+                    <canvas id="canvas-top" class="mocap-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Cell 2: Unified Biomechanics Chart (Top-Right) -->
+            <div class="camera-panel">
+                <div class="panel-tag">
+                    <span>📊 Kinematics Profile</span>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-dot" style="background: var(--blue);"></span>Hip</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: var(--primary);"></span>Shoulder</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: var(--gold);"></span>X-Factor</div>
+                    </div>
+                </div>
+                <div class="canvas-container view-panel-height" id="wrap-chart-unified" style="cursor: crosshair;">
+                    <canvas id="canvas-chart-unified" class="sync-chart-canvas"></canvas>
+                </div>
+                <div class="chart-cursor-info">
+                    <span>Hip: <strong id="val-hip-deg" style="color: var(--blue);">0.0°</strong></span>
+                    <span>Shoulder: <strong id="val-shoulder-deg" style="color: var(--primary);">0.0°</strong></span>
+                    <span>X-Factor: <strong id="val-sep-deg" style="color: var(--gold);">0.0°</strong></span>
+                    <span>Pitch: <strong style="color: var(--primary);">151.9 km/h</strong></span>
+                </div>
+            </div>
+
+            <!-- Cell 3: 3rd Base View (Bottom-Left) -->
+            <div class="camera-panel center-panel">
+                <div class="panel-tag" style="color: var(--gold); border-bottom-color: rgba(255, 209, 102, 0.25);">
+                    <span>⏺️ 3rd Base View</span>
+                </div>
+                <div class="canvas-container view-panel-height">
+                    <canvas id="canvas-3rd" class="mocap-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Cell 4: Catcher View (Bottom-Right) -->
+            <div class="camera-panel">
+                <div class="panel-tag">
+                    <span>➡️ Catcher View</span>
+                </div>
+                <div class="canvas-container view-panel-height">
+                    <canvas id="canvas-catcher" class="mocap-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- --------------------------------------------------------- -->
+        <!-- Playback Control Bar                                      -->
+        <!-- --------------------------------------------------------- -->
+        <section class="controls-card" aria-label="Playback Controller">
+            <div class="btn-group">
+                <button id="btn-restart" class="control-btn" title="Restart from beginning">
+                    <span>🔄</span> Restart
+                </button>
+                <button id="btn-prev" class="control-btn" title="Previous frame">
+                    <span>⏮</span> Prev
+                </button>
+                <button id="btn-play-pause" class="control-btn primary-btn" title="Play / Pause">
+                    <span id="play-icon">⏸</span> <span id="play-text">Pause</span>
+                </button>
+                <button id="btn-next" class="control-btn" title="Next frame">
+                    <span>⏭</span> Next
+                </button>
+            </div>
+
+            <div class="scrubber-wrap">
+                <input type="range" id="timeline-scrubber" min="0" max="1000" value="0">
+                <div class="time-display" id="time-display">0.00s / 1.42s</div>
+            </div>
+
+            <div class="speed-group" id="speed-selector">
+                <button class="speed-btn" data-speed="0.25">0.25x</button>
+                <button class="speed-btn active" data-speed="0.5">0.5x</button>
+                <button class="speed-btn" data-speed="1.0">1.0x</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Dataset Info Modal Overlay -->
+    <div id="dataset-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Dataset & Subject Profile</h2>
+            <div class="modal-body">
+                <p>The biomechanical motion capture data rendered in this analyzer is sourced from elite-level pitching
+                    cohorts in the <strong>Driveline OpenBiomechanics Project (OBP)</strong>.</p>
+
+                <div class="profile-section">
+                    <h4>1. Subject Population</h4>
+                    <ul>
+                        <li><strong>Cohort Group:</strong> Elite collegiate and professional baseball pitchers.</li>
+                        <li><strong>Standard Anthropometrics:</strong> Adult males, age 21.4 ± 2.1 years, height 1.88 ±
+                            0.06 m, weight 89.2 ± 8.4 kg.</li>
+                        <li><strong>Throwing Arm:</strong> Right-handed pitchers throwing standard 5oz baseballs from a
+                            regulation mound.</li>
+                    </ul>
+                </div>
+
+                <div class="profile-section">
+                    <h4>2. Elite Kinematic Benchmarks (OBP Measured Means)</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Biomechanical Metric</th>
+                                <th>Elite Mean Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Peak Pelvis Angular Velocity</td>
+                                <td>$$590 \pm 80^\circ/s \quad (\approx 10.3 \text{ rad/s})$$</td>
+                            </tr>
+                            <tr>
+                                <td>Peak Torso Angular Velocity</td>
+                                <td>$$1,150 \pm 80^\circ/s \quad (\approx 20.1 \text{ rad/s})$$</td>
+                            </tr>
+                            <tr>
+                                <td>Peak Shoulder Internal Rotation</td>
+                                <td>$$7,000 \pm 1,000^\circ/s \quad (\approx 122.2 \text{ rad/s})$$</td>
+                            </tr>
+                            <tr>
+                                <td>Torso Acceleration Phase (\(\Delta t_w\))</td>
+                                <td>$$0.10 \sim 0.15 \text{ seconds}$$</td>
+                            </tr>
+                            <tr>
+                                <td>Shoulder Internal Rot. Phase (\(\Delta t_{sh}\))</td>
+                                <td>$$0.03 \sim 0.05 \text{ seconds}$$</td>
+                            </tr>
+                            <tr>
+                                <td>Stride Velocity (\(v_{stride}\))</td>
+                                <td>$$12.5 \sim 18.0 \text{ km/h}$$</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="profile-section">
+                    <h4>3. Capture Methodology</h4>
+                    <p>Equipped with 3D optical motion capture systems (8–12 infrared cameras operating at 240+ Hz) and
+                        inverse dynamics models using standard anthropometric segment values.</p>
+                </div>
+
+                <div class="profile-section">
+                    <h4>4. Data Source & Licensing</h4>
+                    <p>
+                        <strong>Data Source:</strong> <a href="https://openbiomechanics.org/" target="_blank"
+                            rel="noopener noreferrer" style="color: var(--primary);">Driveline OpenBiomechanics Project (OBP)</a><br>
+                        <strong>License:</strong> Distributed under <a
+                            href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"
+                            rel="noopener noreferrer" style="color: var(--primary);">Creative Commons
+                            Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Data: <strong>Driveline OpenBiomechanics Project (OBP)</strong> | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+            target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> &nbsp;|&nbsp; Designed by <strong>JHS</strong> (<a href="https://www.youtube.com/@JHSgroove" target="_blank" rel="noopener noreferrer">YouTube @JHSgroove</a>)
+    </footer>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- Application Logic: 3-View 3D Renderers + Unified Synced Chart -->
+    <!-- ------------------------------------------------------------- -->
+    <script>
+        // 1. Canvases and Contexts
+        const canvasTop = document.getElementById('canvas-top');
+        const ctxTop = canvasTop.getContext('2d');
+
+        const canvas3rd = document.getElementById('canvas-3rd');
+        const ctx3rd = canvas3rd.getContext('2d');
+
+        const canvasCatcher = document.getElementById('canvas-catcher');
+        const ctxCatcher = canvasCatcher.getContext('2d');
+
+        const canvasChartUnified = document.getElementById('canvas-chart-unified');
+        const ctxChartUnified = canvasChartUnified.getContext('2d');
+
+        // UI Element References
+        const valHipDeg = document.getElementById('val-hip-deg');
+        const valShoulderDeg = document.getElementById('val-shoulder-deg');
+        const valSepDeg = document.getElementById('val-sep-deg');
+
+        const btnPlayPause = document.getElementById('btn-play-pause');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        const btnRestart = document.getElementById('btn-restart');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const timelineScrubber = document.getElementById('timeline-scrubber');
+        const timeDisplay = document.getElementById('time-display');
+        const speedButtons = document.querySelectorAll('#speed-selector .speed-btn');
+
+        // Animation State
+        let isAnimPlaying = true;
+        let currentProgress = 0.0;
+        let lastTimestamp = 0;
+        let playbackSpeed = 0.35;
+        let trajectory = [];
+        let seriesData = null;
+        let animationId = null;
+
+        const fixedPitchParams = {
+            v_final_kmh: 151.9
+        };
+
+        // -------------------------------------------------------------
+        // Biomechanical Series Precomputations
+        // -------------------------------------------------------------
+        function computeBiomechanicsSeries(data) {
+            if (!data || !data.frames || data.frames.length === 0) return null;
+            const frames = data.frames;
+            const pkh_time = data.pkh_time || 0.3333;
+            const fp_time = data.fp_time || 0.85;
+            const br_time = data.br_time || 0.9861;
+
+            const times = frames.map(f => f.t);
+            const pkh_idx = times.reduce((bestIdx, t, i, arr) =>
+                Math.abs(t - pkh_time) < Math.abs(arr[bestIdx] - pkh_time) ? i : bestIdx, 0);
+
+            const rawHip = [];
+            const rawShoulder = [];
+            const wristSpeeds = [];
+
+            for (let i = 0; i < frames.length; i++) {
+                const j = frames[i].joints;
+                const hx = j.lead_hip.x - j.rear_hip.x;
+                const hy = j.lead_hip.y - j.rear_hip.y;
+                const sx = j.glove_shoulder.x - j.shoulder.x;
+                const sy = j.glove_shoulder.y - j.shoulder.y;
+
+                rawHip.push(Math.atan2(hx, -hy));
+                rawShoulder.push(Math.atan2(sx, -sy));
+
+                if (i > 0) {
+                    const dt = frames[i].t - frames[i - 1].t;
+                    if (dt > 0) {
+                        const w_curr = j.wrist;
+                        const w_prev = frames[i - 1].joints.wrist;
+                        const dist = Math.hypot(w_curr.x - w_prev.x, w_curr.y - w_prev.y, w_curr.z - w_prev.z);
+                        wristSpeeds.push((dist / dt) * 3.6);
+                    } else {
+                        wristSpeeds.push(0);
+                    }
+                } else {
+                    wristSpeeds.push(0);
+                }
+            }
+
+            // Moving average smooth for wrist speed
+            const smoothedSpeeds = [];
+            const halfW = 2;
+            for (let i = 0; i < wristSpeeds.length; i++) {
+                let sum = 0, count = 0;
+                for (let k = Math.max(0, i - halfW); k <= Math.min(wristSpeeds.length - 1, i + halfW); k++) {
+                    sum += wristSpeeds[k];
+                    count++;
+                }
+                smoothedSpeeds.push(sum / count);
+            }
+
+            // Unwrap radian angles
+            function unwrap(anglesRad) {
+                const out = [anglesRad[0]];
+                for (let i = 1; i < anglesRad.length; i++) {
+                    let diff = anglesRad[i] - anglesRad[i - 1];
+                    while (diff > Math.PI) diff -= 2 * Math.PI;
+                    while (diff < -Math.PI) diff += 2 * Math.PI;
+                    out.push(out[i - 1] + diff);
+                }
+                return out.map(r => r * 180 / Math.PI);
+            }
+
+            const unwrapHipDeg = unwrap(rawHip);
+            const unwrapShoulderDeg = unwrap(rawShoulder);
+
+            const h_base = unwrapHipDeg[pkh_idx];
+            const s_base = unwrapShoulderDeg[pkh_idx];
+
+            const hipAngles = unwrapHipDeg.map(a => a - h_base);
+            const shoulderAngles = unwrapShoulderDeg.map(a => a - s_base);
+            const separationAngles = shoulderAngles.map((s, i) => s - hipAngles[i]);
+            const relTimes = times.map(t => t - pkh_time);
+
+            return {
+                times,
+                relTimes,
+                hipAngles,
+                shoulderAngles,
+                separationAngles,
+                wristSpeeds: smoothedSpeeds,
+                pkh_time,
+                fp_time,
+                br_time,
+                t_lift_plot: 0.0,
+                t_fp_plot: fp_time - pkh_time,
+                t_release_plot: br_time - pkh_time,
+                totalDuration: times[times.length - 1]
+            };
+        }
+
+        // Generate Trajectory cache with ball flight
+        function generateTrajectory() {
+            trajectory = [];
+            const dataObj = (typeof pitchingDataElite !== 'undefined') ? pitchingDataElite : ((typeof realOBPMotionData !== 'undefined') ? realOBPMotionData : null);
+            if (!dataObj) return;
+
+            const { frames, br_time } = dataObj;
+            const ballSpeedMs = fixedPitchParams.v_final_kmh / 3.6;
+
+            let br_frame = frames.find(f => f.t >= br_time) || frames[frames.length - 1];
+            const hand_br = br_frame.joints.hand;
+
+            for (let i = 0; i < frames.length; i++) {
+                const f = frames[i];
+                const t = f.t;
+
+                const joints = {};
+                for (let k in f.joints) {
+                    joints[k] = { ...f.joints[k] };
+                }
+
+                let ball = { ...joints.hand };
+                let isBallReleased = false;
+                if (t > br_time) {
+                    isBallReleased = true;
+                    const elapsed = t - br_time;
+                    ball.x = hand_br.x + ballSpeedMs * elapsed;
+                    ball.y = hand_br.y - 0.22 * elapsed;
+                    ball.z = Math.max(0.05, hand_br.z - 0.5 * 9.8 * (elapsed ** 2));
+                }
+
+                const pVec = {
+                    x: joints.lead_hip.x - joints.rear_hip.x,
+                    y: joints.lead_hip.y - joints.rear_hip.y
+                };
+                const sVec = {
+                    x: joints.glove_shoulder.x - joints.shoulder.x,
+                    y: joints.glove_shoulder.y - joints.shoulder.y
+                };
+                let xFactorDeg = (Math.atan2(pVec.y, pVec.x) - Math.atan2(sVec.y, sVec.x)) * 180 / Math.PI;
+                if (xFactorDeg > 180) xFactorDeg -= 360;
+                if (xFactorDeg < -180) xFactorDeg += 360;
+
+                trajectory.push({
+                    t,
+                    joints,
+                    ball,
+                    isBallReleased,
+                    xFactor: xFactorDeg,
+                    wristSpeed: seriesData ? seriesData.wristSpeeds[i] : 0
+                });
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 3D Projection & Multi-Perspective Render Engine
+        // -------------------------------------------------------------
+        function project3D(pt, w, h, yaw, pitch, zoom, target) {
+            const dx = pt.x - target.x;
+            const dy = pt.y - target.y;
+            const dz = pt.z - target.z;
+
+            // Horizontal Yaw
+            const rx = dx * Math.cos(yaw) - dy * Math.sin(yaw);
+            const ry = dx * Math.sin(yaw) + dy * Math.cos(yaw);
+
+            // Vertical Pitch
+            const rx2 = rx * Math.cos(pitch) + dz * Math.sin(pitch);
+            const rz2 = -rx * Math.sin(pitch) + dz * Math.cos(pitch);
+
+            // Perspective divisor
+            const dist = 3.6 - rx2;
+            const scale = zoom / Math.max(0.4, dist);
+
+            const screenX = (w / 2) + ry * scale;
+            const screenY = (h / 2) - rz2 * scale;
+
+            return { x: screenX, y: screenY, depth: rx2 };
+        }
+
+        function draw3DBone(ctx, j1, j2, w, h, yaw, pitch, zoom, target, color, width = 3) {
+            const p1 = project3D(j1, w, h, yaw, pitch, zoom, target);
+            const p2 = project3D(j2, w, h, yaw, pitch, zoom, target);
+
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+
+        function draw3DJoint(ctx, j, w, h, yaw, pitch, zoom, target, color, size = 4.5) {
+            const p = project3D(j, w, h, yaw, pitch, zoom, target);
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+        }
+
+        function renderSingleView(ctx, canvas, frame, yaw, pitch, zoom, isTopView = false) {
+            const dpr = window.devicePixelRatio || 1;
+            const w = canvas.width / dpr;
+            const h = canvas.height / dpr;
+            ctx.clearRect(0, 0, w, h);
+
+            // Center tightly on pelvis/body center to maximize figure size
+            const target = {
+                x: frame.joints.pelvis_c.x,
+                y: isTopView ? frame.joints.pelvis_c.y : (frame.joints.pelvis_c.y * 0.5),
+                z: isTopView ? 0.95 : 0.80
+            };
+
+            // 1. Compact Grid Lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for (let gx = -0.5; gx <= 3.0; gx += 0.5) {
+                const p1 = project3D({ x: gx, y: -0.8, z: 0 }, w, h, yaw, pitch, zoom, target);
+                const p2 = project3D({ x: gx, y: 0.8, z: 0 }, w, h, yaw, pitch, zoom, target);
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            }
+            for (let gy = -0.8; gy <= 0.8; gy += 0.4) {
+                const p1 = project3D({ x: -0.5, y: gy, z: 0 }, w, h, yaw, pitch, zoom, target);
+                const p2 = project3D({ x: 3.0, y: gy, z: 0 }, w, h, yaw, pitch, zoom, target);
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            }
+
+            // 2. Mound Slope
+            if (!isTopView) {
+                ctx.beginPath();
+                const m1_L = project3D({ x: -0.2, y: -0.6, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                const m2_L = project3D({ x: 0.3, y: -0.6, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                const m3_L = project3D({ x: 1.5, y: -0.6, z: 0.0 }, w, h, yaw, pitch, zoom, target);
+                const m4_L = project3D({ x: 2.8, y: -0.6, z: 0.0 }, w, h, yaw, pitch, zoom, target);
+                ctx.moveTo(m1_L.x, m1_L.y);
+                ctx.lineTo(m2_L.x, m2_L.y);
+                ctx.lineTo(m3_L.x, m3_L.y);
+                ctx.lineTo(m4_L.x, m4_L.y);
+
+                const m4_R = project3D({ x: 2.8, y: 0.6, z: 0.0 }, w, h, yaw, pitch, zoom, target);
+                const m3_R = project3D({ x: 1.5, y: 0.6, z: 0.0 }, w, h, yaw, pitch, zoom, target);
+                const m2_R = project3D({ x: 0.3, y: 0.6, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                const m1_R = project3D({ x: -0.2, y: 0.6, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                ctx.lineTo(m4_R.x, m4_R.y);
+                ctx.lineTo(m3_R.x, m3_R.y);
+                ctx.lineTo(m2_R.x, m2_R.y);
+                ctx.lineTo(m1_R.x, m1_R.y);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(255, 209, 102, 0.03)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 209, 102, 0.18)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Pitching Rubber Plate
+                const r1 = project3D({ x: 0.2, y: -0.25, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                const r2 = project3D({ x: 0.2, y: 0.25, z: 0.25 }, w, h, yaw, pitch, zoom, target);
+                ctx.beginPath();
+                ctx.moveTo(r1.x, r1.y);
+                ctx.lineTo(r2.x, r2.y);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            // 3. Bones
+            const js = frame.joints;
+            const colLegR = '#ffd166';
+            const colLegL = '#ef476f';
+            const colBody = '#ffffff';
+            const colArmR = '#66fcf1';
+            const colArmL = 'rgba(102, 252, 241, 0.45)';
+
+            // Legs
+            draw3DBone(ctx, js.rear_hip, js.rear_knee, w, h, yaw, pitch, zoom, target, colLegR, 4.5);
+            draw3DBone(ctx, js.rear_knee, js.rear_ankle, w, h, yaw, pitch, zoom, target, colLegR, 4);
+            draw3DBone(ctx, js.lead_hip, js.lead_knee, w, h, yaw, pitch, zoom, target, colLegL, 4.5);
+            draw3DBone(ctx, js.lead_knee, js.lead_ankle, w, h, yaw, pitch, zoom, target, colLegL, 4);
+
+            // Torso
+            draw3DBone(ctx, js.rear_hip, js.lead_hip, w, h, yaw, pitch, zoom, target, colLegR, 5);
+            draw3DBone(ctx, js.pelvis_c, js.waist, w, h, yaw, pitch, zoom, target, colBody, 5.5);
+            draw3DBone(ctx, js.waist, js.thorax_prox, w, h, yaw, pitch, zoom, target, colBody, 5.5);
+            draw3DBone(ctx, js.shoulder, js.glove_shoulder, w, h, yaw, pitch, zoom, target, colArmR, 5);
+
+            // Throwing Arm
+            draw3DBone(ctx, js.thorax_prox, js.shoulder, w, h, yaw, pitch, zoom, target, colArmR, 5);
+            draw3DBone(ctx, js.shoulder, js.elbow, w, h, yaw, pitch, zoom, target, colArmR, 4.5);
+            draw3DBone(ctx, js.elbow, js.wrist, w, h, yaw, pitch, zoom, target, colArmR, 4);
+            draw3DBone(ctx, js.wrist, js.hand, w, h, yaw, pitch, zoom, target, colArmR, 3);
+
+            // Glove Arm
+            draw3DBone(ctx, js.thorax_prox, js.glove_shoulder, w, h, yaw, pitch, zoom, target, colArmL, 4.5);
+            draw3DBone(ctx, js.glove_shoulder, js.glove_elbow, w, h, yaw, pitch, zoom, target, colArmL, 4);
+            draw3DBone(ctx, js.glove_elbow, js.glove_wrist, w, h, yaw, pitch, zoom, target, colArmL, 3.5);
+            draw3DBone(ctx, js.glove_wrist, js.glove_hand, w, h, yaw, pitch, zoom, target, colArmL, 3);
+
+            // Head
+            const headCenter = {
+                x: js.thorax_prox.x,
+                y: js.thorax_prox.y,
+                z: js.thorax_prox.z + 0.18
+            };
+            draw3DBone(ctx, js.thorax_prox, headCenter, w, h, yaw, pitch, zoom, target, colBody, 4.5);
+            draw3DJoint(ctx, headCenter, w, h, yaw, pitch, zoom, target, colBody, 7.5);
+
+            // Joint Nodes
+            draw3DJoint(ctx, js.rear_ankle, w, h, yaw, pitch, zoom, target, colLegR, 4.5);
+            draw3DJoint(ctx, js.rear_knee, w, h, yaw, pitch, zoom, target, colLegR, 5);
+            draw3DJoint(ctx, js.lead_ankle, w, h, yaw, pitch, zoom, target, colLegL, 4.5);
+            draw3DJoint(ctx, js.lead_knee, w, h, yaw, pitch, zoom, target, colLegL, 5);
+            draw3DJoint(ctx, js.pelvis_c, w, h, yaw, pitch, zoom, target, colBody, 5.5);
+            draw3DJoint(ctx, js.waist, w, h, yaw, pitch, zoom, target, colBody, 5);
+            draw3DJoint(ctx, js.thorax_prox, w, h, yaw, pitch, zoom, target, colBody, 5.5);
+            draw3DJoint(ctx, js.shoulder, w, h, yaw, pitch, zoom, target, colArmR, 5.5);
+            draw3DJoint(ctx, js.elbow, w, h, yaw, pitch, zoom, target, colArmR, 5);
+            draw3DJoint(ctx, js.wrist, w, h, yaw, pitch, zoom, target, colArmR, 4.5);
+            draw3DJoint(ctx, js.glove_shoulder, w, h, yaw, pitch, zoom, target, colArmL, 5);
+            draw3DJoint(ctx, js.glove_elbow, w, h, yaw, pitch, zoom, target, colArmL, 4.5);
+            draw3DJoint(ctx, js.glove_wrist, w, h, yaw, pitch, zoom, target, colArmL, 4);
+
+            // Ball and Trail
+            const currentData = (typeof pitchingDataElite !== 'undefined') ? pitchingDataElite : ((typeof realOBPMotionData !== 'undefined') ? realOBPMotionData : null);
+            if (frame.isBallReleased && currentData) {
+                const br_time = currentData.br_time;
+                const br_frame_idx = currentData.frames.findIndex(f => f.t >= br_time);
+                const current_idx = trajectory.findIndex(f => f.t >= frame.t);
+
+                if (br_frame_idx !== -1 && current_idx > br_frame_idx) {
+                    ctx.beginPath();
+                    const startP = project3D(trajectory[br_frame_idx].ball, w, h, yaw, pitch, zoom, target);
+                    ctx.moveTo(startP.x, startP.y);
+                    for (let k = br_frame_idx; k <= current_idx; k++) {
+                        const stepP = project3D(trajectory[k].ball, w, h, yaw, pitch, zoom, target);
+                        ctx.lineTo(stepP.x, stepP.y);
+                    }
+                    ctx.strokeStyle = 'rgba(239, 71, 111, 0.55)';
+                    ctx.lineWidth = 2.5;
+                    ctx.setLineDash([4, 4]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+
+            const pBall = project3D(frame.ball, w, h, yaw, pitch, zoom, target);
+            ctx.beginPath();
+            ctx.arc(pBall.x, pBall.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = '#ef476f';
+            ctx.stroke();
+        }
+
+        // -------------------------------------------------------------
+        // Unified Synchronized Chart Rendering Engine
+        // -------------------------------------------------------------
+        // Kinematics Chart Rendering Engine (Joint Angles)
+        // Y: Rotation & Separation Angles (deg)
+        // -------------------------------------------------------------
+        function renderChartUnified(currT) {
+            if (!seriesData) return;
+            const dpr = window.devicePixelRatio || 1;
+            const w = canvasChartUnified.width / dpr;
+            const h = canvasChartUnified.height / dpr;
+            const ctx = ctxChartUnified;
+            ctx.clearRect(0, 0, w, h);
+
+            const padL = 42, padR = 20, padT = 16, padB = 28;
+            const graphW = w - padL - padR;
+            const graphH = h - padT - padB;
+
+            const tMin = seriesData.relTimes[0];
+            const tMax = seriesData.relTimes[seriesData.relTimes.length - 1];
+
+            // Scales with extended range to avoid clipping (-70° to 220°)
+            const yMinAngle = -70, yMaxAngle = 220;
+
+            const mapX = (t) => padL + ((t - tMin) / (tMax - tMin)) * graphW;
+            const mapYAngle = (val) => padT + (1 - (val - yMinAngle) / (yMaxAngle - yMinAngle)) * graphH;
+
+            // 1. Horizontal Grid Lines & Left Y-Axis (Angle) in light gray (#c5c6c7)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.lineWidth = 1;
+            [-40, 0, 40, 80, 120, 160, 200].forEach(val => {
+                const y = mapYAngle(val);
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(w - padR, y);
+                ctx.stroke();
+
+                // Left Y-axis label (Angle)
+                ctx.fillStyle = '#c5c6c7';
+                ctx.font = '600 11.5px Outfit, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${val}°`, padL - 5, y + 4);
+            });
+
+            // 1.1 Baseline y=0° Line & "Facing 3B" Label on Left Side (to avoid being hidden)
+            const yZero = mapYAngle(0);
+            ctx.beginPath();
+            ctx.moveTo(padL, yZero);
+            ctx.lineTo(w - padR, yZero);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#8f9499';
+            ctx.font = '600 10.5px Outfit, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('Facing 3B', padL + 8, yZero - 4);
+
+            // 2. Closed Brighter Gray Bounding Box around Plot Area
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+            ctx.lineWidth = 1.3;
+            ctx.strokeRect(padL, padT, graphW, graphH);
+
+            // 3. Vertical Event Lines with Bottom Labels & Time on X-Axis (Solid lines)
+            const drawEventLine = (tEvent, label, color) => {
+                const x = mapX(tEvent);
+                ctx.beginPath();
+                ctx.moveTo(x, padT);
+                ctx.lineTo(x, h - padB);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.4;
+                ctx.stroke();
+
+                // Event Label
+                ctx.fillStyle = color;
+                ctx.font = '700 11px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, x, h - padB + 13);
+
+                // Time Value in Gray on X-Axis
+                ctx.fillStyle = '#9aa0a6';
+                ctx.font = '600 10px Outfit, sans-serif';
+                const timeStr = `${tEvent >= 0 ? '' : ''}${tEvent.toFixed(3)}s`;
+                ctx.fillText(timeStr, x, h - padB + 24);
+            };
+
+            drawEventLine(seriesData.t_lift_plot, 'Leg Lift', '#8f9499');
+            drawEventLine(seriesData.t_fp_plot, 'Foot Plant', '#06d6a0');
+            drawEventLine(seriesData.t_release_plot, 'Release', '#b5179e');
+
+            // 4. Angle Curves (Left Scale) - Solid Lines
+            const drawAngleCurve = (yData, color) => {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.2;
+                seriesData.relTimes.forEach((t, i) => {
+                    const x = mapX(t);
+                    const y = mapYAngle(yData[i]);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            };
+
+            drawAngleCurve(seriesData.hipAngles, '#3a86ff');
+            drawAngleCurve(seriesData.shoulderAngles, '#66fcf1');
+            drawAngleCurve(seriesData.separationAngles, '#ffd166');
+
+            // 5. Dynamic Synchronized Cursor Line
+            const currRelT = currT - seriesData.pkh_time;
+            const curX = mapX(currRelT);
+            if (curX >= padL && curX <= w - padR) {
+                ctx.beginPath();
+                ctx.moveTo(curX, padT);
+                ctx.lineTo(curX, h - padB);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.8;
+                ctx.stroke();
+            }
+        }
+
+        // -------------------------------------------------------------
+        // Master Frame Render Loop
+        // -------------------------------------------------------------
+        function renderCurrentFrame() {
+            if (trajectory.length === 0) return;
+            const index = Math.round(currentProgress * (trajectory.length - 1));
+            const frame = trajectory[index];
+            if (!frame) return;
+
+            // 1. Update 3D Views (Top / 3rd Base / Catcher)
+            renderSingleView(ctxTop, canvasTop, frame, 1.5708, 1.55, 530, true);
+            renderSingleView(ctx3rd, canvas3rd, frame, 1.5708, 0.0, 430, false);
+            renderSingleView(ctxCatcher, canvasCatcher, frame, 0.0, 0.08, 420, false);
+
+            // 2. Update Unified Synchronized Chart
+            renderChartUnified(frame.t);
+
+            // 3. Update Text Metrics
+            if (seriesData) {
+                const hip = seriesData.hipAngles[index] || 0;
+                const shoulder = seriesData.shoulderAngles[index] || 0;
+                const sep = seriesData.separationAngles[index] || 0;
+
+                valHipDeg.textContent = `${hip.toFixed(1)}°`;
+                valShoulderDeg.textContent = `${shoulder.toFixed(1)}°`;
+                valSepDeg.textContent = `${Math.abs(sep).toFixed(1)}°`;
+            }
+        }
+
+        // Animation Loop
+        function updateAnimation(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            let elapsed = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            if (isAnimPlaying) {
+                currentProgress += elapsed * playbackSpeed;
+                if (currentProgress >= 1.0) {
+                    currentProgress = 0.0;
+                }
+
+                timelineScrubber.value = Math.round(currentProgress * 1000);
+                const maxT = seriesData ? seriesData.totalDuration : 1.42;
+                timeDisplay.textContent = `${(currentProgress * maxT).toFixed(2)}s / ${maxT.toFixed(2)}s`;
+                renderCurrentFrame();
+            }
+
+            animationId = requestAnimationFrame(updateAnimation);
+        }
+
+        // Resize all High-DPI Canvases
+        function resizeAllCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            const list = [
+                { c: canvasTop, ctx: ctxTop },
+                { c: canvas3rd, ctx: ctx3rd },
+                { c: canvasCatcher, ctx: ctxCatcher },
+                { c: canvasChartUnified, ctx: ctxChartUnified }
+            ];
+
+            list.forEach(({ c, ctx }) => {
+                const rect = c.parentElement.getBoundingClientRect();
+                c.width = rect.width * dpr;
+                c.height = rect.height * dpr;
+                ctx.resetTransform();
+                ctx.scale(dpr, dpr);
+            });
+
+            renderCurrentFrame();
+        }
+
+        // Interactive Seeking from Chart Clicks
+        function setupChartSeeking(chartWrap) {
+            let isSeeking = false;
+            const handleSeek = (e) => {
+                if (!seriesData) return;
+                const rect = chartWrap.getBoundingClientRect();
+                const padL = 42, padR = 20;
+                const clickX = e.clientX - rect.left;
+                const graphW = rect.width - padL - padR;
+                const ratio = Math.max(0, Math.min(1, (clickX - padL) / graphW));
+
+                currentProgress = ratio;
+                timelineScrubber.value = Math.round(currentProgress * 1000);
+                const maxT = seriesData.totalDuration;
+                timeDisplay.textContent = `${(currentProgress * maxT).toFixed(2)}s / ${maxT.toFixed(2)}s`;
+                renderCurrentFrame();
+            };
+
+            chartWrap.addEventListener('mousedown', (e) => {
+                isSeeking = true;
+                isAnimPlaying = false;
+                playIcon.textContent = "▶";
+                playText.textContent = "Play";
+                handleSeek(e);
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isSeeking) handleSeek(e);
+            });
+
+            window.addEventListener('mouseup', () => {
+                isSeeking = false;
+            });
+        }
+
+        // -------------------------------------------------------------
+        // UI & Event Bindings
+        // -------------------------------------------------------------
+        btnPlayPause.addEventListener('click', () => {
+            isAnimPlaying = !isAnimPlaying;
+            if (isAnimPlaying) {
+                playIcon.textContent = "⏸";
+                playText.textContent = "Pause";
+                lastTimestamp = performance.now();
+            } else {
+                playIcon.textContent = "▶";
+                playText.textContent = "Play";
+            }
+        });
+
+        btnRestart.addEventListener('click', () => {
+            currentProgress = 0.0;
+            timelineScrubber.value = 0;
+            const maxT = seriesData ? seriesData.totalDuration : 1.42;
+            timeDisplay.textContent = `0.00s / ${maxT.toFixed(2)}s`;
+            renderCurrentFrame();
+        });
+
+        function stepFrame(delta) {
+            if (trajectory.length === 0) return;
+            isAnimPlaying = false;
+            playIcon.textContent = "▶";
+            playText.textContent = "Play";
+
+            const currentIndex = Math.round(currentProgress * (trajectory.length - 1));
+            const targetIndex = Math.max(0, Math.min(trajectory.length - 1, currentIndex + delta));
+
+            currentProgress = trajectory.length > 1 ? targetIndex / (trajectory.length - 1) : 0;
+            timelineScrubber.value = Math.round(currentProgress * 1000);
+            const maxT = seriesData ? seriesData.totalDuration : 1.42;
+            timeDisplay.textContent = `${(currentProgress * maxT).toFixed(2)}s / ${maxT.toFixed(2)}s`;
+            renderCurrentFrame();
+        }
+
+        btnPrev.addEventListener('click', () => stepFrame(-1));
+        btnNext.addEventListener('click', () => stepFrame(1));
+
+        timelineScrubber.addEventListener('input', (e) => {
+            isAnimPlaying = false;
+            playIcon.textContent = "▶";
+            playText.textContent = "Play";
+            currentProgress = parseFloat(e.target.value) / 1000;
+            const maxT = seriesData ? seriesData.totalDuration : 1.42;
+            timeDisplay.textContent = `${(currentProgress * maxT).toFixed(2)}s / ${maxT.toFixed(2)}s`;
+            renderCurrentFrame();
+        });
+
+        speedButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                speedButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                playbackSpeed = parseFloat(btn.dataset.speed) * 0.70;
+            });
+        });
+
+        // Dataset Modal
+        const modal = document.getElementById('dataset-modal');
+        const btnModal = document.getElementById('btn-dataset-info');
+        const spanClose = document.getElementsByClassName('close-modal')[0];
+
+        if (btnModal && modal) {
+            btnModal.addEventListener('click', () => {
+                modal.style.display = 'block';
+                if (window.renderMathInElement) {
+                    renderMathInElement(modal, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false }
+                        ],
+                        throwOnError: false
+                    });
+                }
+            });
+        }
+
+        if (spanClose && modal) {
+            spanClose.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('resize', resizeAllCanvases);
+
+        // App Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            const dataObj = (typeof pitchingDataElite !== 'undefined') ? pitchingDataElite : ((typeof realOBPMotionData !== 'undefined') ? realOBPMotionData : ((typeof elitePitchingData !== 'undefined') ? elitePitchingData : null));
+            if (dataObj) {
+                seriesData = computeBiomechanicsSeries(dataObj);
+                generateTrajectory();
+            }
+
+            setupChartSeeking(document.getElementById('wrap-chart-unified'));
+
+            resizeAllCanvases();
+
+            lastTimestamp = performance.now();
+            updateAnimation(lastTimestamp);
+        });
+    </script>
+</body>
+
+</html>

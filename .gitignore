@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large MediaPipe Task Model Files
+*.task
+
+# Video & Raw Recordings
+video/
+video_youtube/
+*.mp4
+*.webm
+
+# Virtual Environment
+venv/
+.env
+
+# VS Code / IDE
+.vscode/
+.gemini/

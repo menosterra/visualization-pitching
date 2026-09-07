@@ -1,21 +1,24 @@
-# Byte-compiled / optimized / DLL files
+# Python Scripts & Dev Tools
+*.py
 __pycache__/
 *.py[cod]
 *$py.class
+venv/
+.env
 
-# Large MediaPipe Task Model Files
+# MediaPipe AI Models & Heavy Data
 *.task
-
-# Video & Raw Recordings
 video/
 video_youtube/
 *.mp4
 *.webm
+*.png
+*.json
 
-# Virtual Environment
-venv/
-.env
+# Documentation / Scratch drafts
+pitch_speed_mechanics.md
+user_pitching_analysis.html
 
-# VS Code / IDE
+# IDE
 .vscode/
 .gemini/

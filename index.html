@@ -147,6 +147,29 @@
             height: 28px;
         }
 
+        .panel-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .panel-icon-rect {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 2.5px;
+            background: rgba(102, 252, 241, 0.25);
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 0 4px rgba(102, 252, 241, 0.3);
+            flex-shrink: 0;
+        }
+
+        .panel-icon-rect.rect-gold {
+            background: rgba(255, 209, 102, 0.25);
+            border-color: var(--gold);
+            box-shadow: 0 0 4px rgba(255, 209, 102, 0.3);
+        }
+
         .canvas-container {
             width: 100%;
             position: relative;
@@ -189,7 +212,8 @@
             font-size: 0.82rem;
             color: var(--text-main);
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 20px;
             background: rgba(0, 0, 0, 0.45);
             padding: 4px 14px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -227,24 +251,27 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 8px 16px;
+            padding: 7px 14px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: space-between;
+            gap: 12px;
             width: 100%;
+            flex-wrap: nowrap;
         }
 
         .btn-group {
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .control-btn {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-color);
             color: var(--text-bright);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
             font-family: 'Inter', sans-serif;
             font-size: 0.84rem;
@@ -252,8 +279,10 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            gap: 4px;
             transition: all 0.2s ease;
+            user-select: none;
         }
 
         .control-btn:hover {
@@ -267,6 +296,7 @@
             color: #0b0c10;
             border-color: var(--primary);
             font-weight: 700;
+            min-width: 38px;
         }
 
         .scrubber-wrap {
@@ -531,9 +561,8 @@
     <header>
         <h1><span>⚾</span> Pitching Visualization</h1>
         <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 0.78rem; color: #8f9499; font-family: 'Inter', sans-serif;">Designed by <strong style="color: #c5c6c7;">JHS</strong> (<a href="https://www.youtube.com/@JHSgroove" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none;">YouTube @JHSgroove</a>)</span>
             <button id="btn-dataset-info" class="header-btn">
-                <span>📊</span> Dataset Profile & License
+                <span>📊</span> Dataset Profile
             </button>
         </div>
     </header>
@@ -548,7 +577,10 @@
             <!-- Cell 1: Top View (Top-Left) -->
             <div class="camera-panel">
                 <div class="panel-tag">
-                    <span>⬆️ Top View</span>
+                    <div class="panel-title-wrap">
+                        <span class="panel-icon-rect"></span>
+                        <span>Top View</span>
+                    </div>
                 </div>
                 <div class="canvas-container view-panel-height">
                     <canvas id="canvas-top" class="mocap-canvas"></canvas>
@@ -558,7 +590,10 @@
             <!-- Cell 2: Unified Biomechanics Chart (Top-Right) -->
             <div class="camera-panel">
                 <div class="panel-tag">
-                    <span>📊 Kinematics Profile</span>
+                    <div class="panel-title-wrap">
+                        <span class="panel-icon-rect"></span>
+                        <span>Metrics</span>
+                    </div>
                     <div class="chart-legend">
                         <div class="legend-item"><span class="legend-dot" style="background: var(--blue);"></span>Hip</div>
                         <div class="legend-item"><span class="legend-dot" style="background: var(--primary);"></span>Shoulder</div>
@@ -572,14 +607,16 @@
                     <span>Hip: <strong id="val-hip-deg" style="color: var(--blue);">0.0°</strong></span>
                     <span>Shoulder: <strong id="val-shoulder-deg" style="color: var(--primary);">0.0°</strong></span>
                     <span>X-Factor: <strong id="val-sep-deg" style="color: var(--gold);">0.0°</strong></span>
-                    <span>Pitch: <strong style="color: var(--primary);">151.9 km/h</strong></span>
                 </div>
             </div>
 
             <!-- Cell 3: 3rd Base View (Bottom-Left) -->
             <div class="camera-panel center-panel">
                 <div class="panel-tag" style="color: var(--gold); border-bottom-color: rgba(255, 209, 102, 0.25);">
-                    <span>⏺️ 3rd Base View</span>
+                    <div class="panel-title-wrap">
+                        <span class="panel-icon-rect rect-gold"></span>
+                        <span>3rd Base View</span>
+                    </div>
                 </div>
                 <div class="canvas-container view-panel-height">
                     <canvas id="canvas-3rd" class="mocap-canvas"></canvas>
@@ -589,7 +626,10 @@
             <!-- Cell 4: Catcher View (Bottom-Right) -->
             <div class="camera-panel">
                 <div class="panel-tag">
-                    <span>➡️ Catcher View</span>
+                    <div class="panel-title-wrap">
+                        <span class="panel-icon-rect"></span>
+                        <span>Catcher View</span>
+                    </div>
                 </div>
                 <div class="canvas-container view-panel-height">
                     <canvas id="canvas-catcher" class="mocap-canvas"></canvas>
@@ -602,17 +642,17 @@
         <!-- --------------------------------------------------------- -->
         <section class="controls-card" aria-label="Playback Controller">
             <div class="btn-group">
-                <button id="btn-restart" class="control-btn" title="Restart from beginning">
-                    <span>🔄</span> Restart
+                <button id="btn-restart" class="control-btn" title="Restart (To Beginning)">
+                    <span>⏮</span>
                 </button>
                 <button id="btn-prev" class="control-btn" title="Previous frame">
-                    <span>⏮</span> Prev
+                    <span>◀F</span>
                 </button>
                 <button id="btn-play-pause" class="control-btn primary-btn" title="Play / Pause">
-                    <span id="play-icon">⏸</span> <span id="play-text">Pause</span>
+                    <span id="play-icon">⏸</span>
                 </button>
                 <button id="btn-next" class="control-btn" title="Next frame">
-                    <span>⏭</span> Next
+                    <span>F▶</span>
                 </button>
             </div>
 
@@ -633,7 +673,7 @@
     <div id="dataset-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Dataset & Subject Profile</h2>
+            <h2>Dataset Profile</h2>
             <div class="modal-body">
                 <p>The biomechanical motion capture data rendered in this analyzer is sourced from elite-level pitching
                     cohorts in the <strong>Driveline OpenBiomechanics Project (OBP)</strong>.</p>
@@ -642,6 +682,7 @@
                     <h4>1. Subject Population</h4>
                     <ul>
                         <li><strong>Cohort Group:</strong> Elite collegiate and professional baseball pitchers.</li>
+                        <li><strong>Pitch Velocity:</strong> 151.9 km/h (94.4 mph) fastball release speed.</li>
                         <li><strong>Standard Anthropometrics:</strong> Adult males, age 21.4 ± 2.1 years, height 1.88 ±
                             0.06 m, weight 89.2 ± 8.4 kg.</li>
                         <li><strong>Throwing Arm:</strong> Right-handed pitchers throwing standard 5oz baseballs from a
@@ -659,6 +700,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>Pitch Fastball Velocity</td>
+                                <td>$$151.9 \text{ km/h} \quad (94.4 \text{ mph})$$</td>
+                            </tr>
                             <tr>
                                 <td>Peak Pelvis Angular Velocity</td>
                                 <td>$$590 \pm 80^\circ/s \quad (\approx 10.3 \text{ rad/s})$$</td>
@@ -737,7 +782,6 @@
 
         const btnPlayPause = document.getElementById('btn-play-pause');
         const playIcon = document.getElementById('play-icon');
-        const playText = document.getElementById('play-text');
         const btnRestart = document.getElementById('btn-restart');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -1162,7 +1206,7 @@
                 ctx.fillText(`${val}°`, padL - 5, y + 4);
             });
 
-            // 1.1 Baseline y=0° Line & "Facing 3B" Label on Left Side (to avoid being hidden)
+            // 1.1 Baseline y=0° Line
             const yZero = mapYAngle(0);
             ctx.beginPath();
             ctx.moveTo(padL, yZero);
@@ -1171,31 +1215,41 @@
             ctx.lineWidth = 1.2;
             ctx.stroke();
 
+            // Top Label for 0° Reference
             ctx.fillStyle = '#8f9499';
             ctx.font = '600 10.5px Outfit, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('Facing 3B', padL + 8, yZero - 4);
+            ctx.fillText('0° = 2B Direction (from Mound Center)', padL + 8, padT + 12);
 
             // 2. Closed Brighter Gray Bounding Box around Plot Area
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
             ctx.lineWidth = 1.3;
             ctx.strokeRect(padL, padT, graphW, graphH);
 
-            // 3. Vertical Event Lines with Bottom Labels & Time on X-Axis (Solid lines)
+            // 3. Vertical Event Lines with Bottom Labels & Time on X-Axis (Dashed lines)
             const drawEventLine = (tEvent, label, color) => {
                 const x = mapX(tEvent);
                 ctx.beginPath();
+                ctx.setLineDash([4, 3]);
                 ctx.moveTo(x, padT);
                 ctx.lineTo(x, h - padB);
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 1.4;
                 ctx.stroke();
+                ctx.setLineDash([]);
 
                 // Event Label
                 ctx.fillStyle = color;
                 ctx.font = '700 11px Outfit, sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(label, x, h - padB + 13);
+
+                // Shift Foot Plant to the left so the center of "Plant" aligns with line x
+                if (label === 'Foot Plant') {
+                    const footWidth = ctx.measureText('Foot ').width;
+                    ctx.fillText(label, x - footWidth / 2, h - padB + 13);
+                } else {
+                    ctx.fillText(label, x, h - padB + 13);
+                }
 
                 // Time Value in Gray on X-Axis
                 ctx.fillStyle = '#9aa0a6';
@@ -1226,15 +1280,29 @@
             drawAngleCurve(seriesData.shoulderAngles, '#66fcf1');
             drawAngleCurve(seriesData.separationAngles, '#ffd166');
 
-            // 5. Dynamic Synchronized Cursor Line
+            // 5. Dynamic Synchronized Cursor Line & Draggable Downward Triangle Handle
             const currRelT = currT - seriesData.pkh_time;
             const curX = mapX(currRelT);
             if (curX >= padL && curX <= w - padR) {
+                // Vertical Line
                 ctx.beginPath();
                 ctx.moveTo(curX, padT);
                 ctx.lineTo(curX, h - padB);
                 ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 1.8;
+                ctx.stroke();
+
+                // Downward Inverted Triangle Handle at Top (▼)
+                const triW = 6, triH = 7;
+                ctx.beginPath();
+                ctx.moveTo(curX - triW, padT);
+                ctx.lineTo(curX + triW, padT);
+                ctx.lineTo(curX, padT + triH);
+                ctx.closePath();
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.lineWidth = 0.8;
                 ctx.stroke();
             }
         }
@@ -1310,14 +1378,15 @@
             renderCurrentFrame();
         }
 
-        // Interactive Seeking from Chart Clicks
+        // Interactive Seeking & Dragging from Chart
         function setupChartSeeking(chartWrap) {
             let isSeeking = false;
             const handleSeek = (e) => {
                 if (!seriesData) return;
                 const rect = chartWrap.getBoundingClientRect();
                 const padL = 42, padR = 20;
-                const clickX = e.clientX - rect.left;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clickX = clientX - rect.left;
                 const graphW = rect.width - padL - padR;
                 const ratio = Math.max(0, Math.min(1, (clickX - padL) / graphW));
 
@@ -1328,21 +1397,33 @@
                 renderCurrentFrame();
             };
 
-            chartWrap.addEventListener('mousedown', (e) => {
+            const startSeek = (e) => {
                 isSeeking = true;
                 isAnimPlaying = false;
                 playIcon.textContent = "▶";
-                playText.textContent = "Play";
+                chartWrap.style.cursor = 'ew-resize';
                 handleSeek(e);
-            });
+            };
+
+            chartWrap.addEventListener('mousedown', startSeek);
+            chartWrap.addEventListener('touchstart', startSeek, { passive: true });
 
             window.addEventListener('mousemove', (e) => {
                 if (isSeeking) handleSeek(e);
             });
+            window.addEventListener('touchmove', (e) => {
+                if (isSeeking) handleSeek(e);
+            }, { passive: true });
 
-            window.addEventListener('mouseup', () => {
-                isSeeking = false;
-            });
+            const stopSeek = () => {
+                if (isSeeking) {
+                    isSeeking = false;
+                    chartWrap.style.cursor = 'crosshair';
+                }
+            };
+
+            window.addEventListener('mouseup', stopSeek);
+            window.addEventListener('touchend', stopSeek);
         }
 
         // -------------------------------------------------------------
@@ -1352,11 +1433,9 @@
             isAnimPlaying = !isAnimPlaying;
             if (isAnimPlaying) {
                 playIcon.textContent = "⏸";
-                playText.textContent = "Pause";
                 lastTimestamp = performance.now();
             } else {
                 playIcon.textContent = "▶";
-                playText.textContent = "Play";
             }
         });
 
@@ -1372,7 +1451,6 @@
             if (trajectory.length === 0) return;
             isAnimPlaying = false;
             playIcon.textContent = "▶";
-            playText.textContent = "Play";
 
             const currentIndex = Math.round(currentProgress * (trajectory.length - 1));
             const targetIndex = Math.max(0, Math.min(trajectory.length - 1, currentIndex + delta));
@@ -1390,7 +1468,6 @@
         timelineScrubber.addEventListener('input', (e) => {
             isAnimPlaying = false;
             playIcon.textContent = "▶";
-            playText.textContent = "Play";
             currentProgress = parseFloat(e.target.value) / 1000;
             const maxT = seriesData ? seriesData.totalDuration : 1.42;
             timeDisplay.textContent = `${(currentProgress * maxT).toFixed(2)}s / ${maxT.toFixed(2)}s`;

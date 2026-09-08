@@ -529,8 +529,13 @@
             }
 
             .control-btn {
-                padding: 5px 9px;
+                padding: 5px 8px;
                 font-size: 0.78rem;
+            }
+
+            .speed-btn {
+                padding: 4px 6px;
+                font-size: 0.76rem;
             }
 
             .time-display {
@@ -656,15 +661,15 @@
                 </button>
             </div>
 
-            <div class="scrubber-wrap">
-                <input type="range" id="timeline-scrubber" min="0" max="1000" value="0">
-                <div class="time-display" id="time-display">0.00s / 1.42s</div>
-            </div>
-
             <div class="speed-group" id="speed-selector">
                 <button class="speed-btn" data-speed="0.25">0.25x</button>
                 <button class="speed-btn active" data-speed="0.5">0.5x</button>
                 <button class="speed-btn" data-speed="1.0">1.0x</button>
+            </div>
+
+            <div class="scrubber-wrap">
+                <input type="range" id="timeline-scrubber" min="0" max="1000" value="0">
+                <div class="time-display" id="time-display">0.00s / 1.42s</div>
             </div>
         </section>
     </main>

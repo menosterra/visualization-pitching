@@ -565,7 +565,10 @@
     <!-- Compact Slim Header -->
     <header>
         <h1><span>⚾</span> Pitching Visualization</h1>
-        <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button id="btn-view-settings" class="header-btn" title="Configure View, Zoom, Distance and Perspective Settings">
+                <span>⚙️</span> View Settings
+            </button>
             <button id="btn-dataset-info" class="header-btn">
                 <span>📊</span> Dataset Profile
             </button>
@@ -673,6 +676,79 @@
             </div>
         </section>
     </main>
+
+    <!-- View & Camera Settings Modal Overlay (Compact No-Scrollbar Design) -->
+    <div id="view-settings-modal" class="modal">
+        <div class="modal-content" style="max-width: 480px; padding: 18px 22px; margin: 4% auto;">
+            <span class="close-modal" id="close-view-settings" style="top: 14px; right: 18px;">&times;</span>
+            <h2 style="font-size: 1.15rem; margin-bottom: 12px; padding-bottom: 6px;">⚙️ View & Camera Settings</h2>
+            <div class="modal-body" style="max-height: none; overflow: visible; padding: 0;">
+                <!-- 1. Zoom Mode -->
+                <div style="margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-weight: 700; color: var(--text-bright); font-size: 0.85rem;">1. Zoom Mode</label>
+                        <div style="display: flex; gap: 14px; font-size: 0.82rem;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--text-main);">
+                                <input type="radio" name="opt-zoom-mode" value="auto" id="mode-auto">
+                                <span>Auto Fit</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: var(--text-main);">
+                                <input type="radio" name="opt-zoom-mode" value="manual" checked id="mode-manual">
+                                <span>Manual</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.72rem; color: #8f9499; margin-top: 4px;">
+                        * Auto Fit dynamically frames the 3D bounding box to fit the canvas.
+                    </div>
+                </div>
+
+                <!-- 2. Zoom Level -->
+                <div style="margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-weight: 700; color: var(--text-bright); font-size: 0.85rem;">2. Zoom Level</label>
+                        <span id="txt-zoom-val" style="color: var(--primary); font-weight: 700; font-size: 0.88rem;">2.00x</span>
+                    </div>
+                    <input type="range" id="rng-zoom-mult" min="0.5" max="2.5" step="0.05" value="2.0" style="width: 100%;">
+                </div>
+
+                <!-- 3. Perspective Effect -->
+                <div style="margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                        <label style="font-weight: 700; color: var(--text-bright); font-size: 0.85rem;">3. Perspective Effect</label>
+                        <span id="txt-persp-val" style="color: var(--primary); font-weight: 700; font-size: 0.84rem;">0% (Orthographic / No Distortion)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.70rem; color: #8f9499; margin-bottom: 2px;">
+                        <span>0% (Orthographic - No distortion)</span>
+                        <span>100% (Strong perspective)</span>
+                    </div>
+                    <input type="range" id="rng-persp-strength" min="0.0" max="1.0" step="0.05" value="0.0" style="width: 100%;">
+                    <div style="font-size: 0.72rem; color: #8f9499; margin-top: 3px;">
+                        * Reduces near-camera limb distortion in Top and Catcher views.
+                    </div>
+                </div>
+
+                <!-- 4. Camera Distance -->
+                <div style="margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-weight: 700; color: var(--text-bright); font-size: 0.85rem;">4. Camera Distance</label>
+                        <span id="txt-camdist-val" style="color: var(--primary); font-weight: 700; font-size: 0.88rem;">7.0 m</span>
+                    </div>
+                    <input type="range" id="rng-cam-dist" min="2.0" max="10.0" step="0.5" value="7.0" style="width: 100%;">
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+                    <button id="btn-reset-view-settings" class="header-btn" style="background: rgba(255,255,255,0.08); padding: 5px 12px; font-size: 0.80rem;">
+                        🔄 Reset Defaults
+                    </button>
+                    <button id="btn-close-view-settings" class="header-btn" style="background: var(--primary); color: #0b0c10; font-weight: 700; padding: 5px 14px; font-size: 0.80rem;">
+                        Apply & Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Dataset Info Modal Overlay -->
     <div id="dataset-modal" class="modal">
@@ -902,48 +978,71 @@
             };
         }
 
-        // Generate Trajectory cache with ball flight
+        // Global Motion Bounds for Dynamic Adaptive Auto-Framing & Zoom
+        let motionBounds = {
+            centerX: 0.75,
+            centerY: 0.0,
+            centerZ: 0.95,
+            spanX: 1.8,
+            spanY: 0.9,
+            spanZ: 1.6
+        };
+
         function generateTrajectory() {
             trajectory = [];
-            const dataObj = (typeof pitchingDataElite !== 'undefined') ? pitchingDataElite : ((typeof realOBPMotionData !== 'undefined') ? realOBPMotionData : null);
-            if (!dataObj) return;
+            if (typeof realOBPMotionData === 'undefined' || !realOBPMotionData.frames) return;
 
-            const { frames, br_time } = dataObj;
+            const { frames, br_time } = realOBPMotionData;
             const ballSpeedMs = fixedPitchParams.v_final_kmh / 3.6;
 
-            let br_frame = frames.find(f => f.t >= br_time) || frames[frames.length - 1];
-            const hand_br = br_frame.joints.hand;
+            const br_val = br_time !== undefined ? br_time : 0.8;
+            let br_frame = frames.find(f => (f.t !== undefined ? f.t : f.time) >= br_val) || frames[frames.length - 1];
+            const hand_br = (br_frame && br_frame.joints) ? (br_frame.joints.hand || br_frame.joints.wrist || { x: 0.5, y: 0, z: 1.5 }) : { x: 0.5, y: 0, z: 1.5 };
+
+            let minX = 999, maxX = -999;
+            let minY = 999, maxY = -999;
+            let minZ = 999, maxZ = -999;
 
             for (let i = 0; i < frames.length; i++) {
                 const f = frames[i];
-                const t = f.t;
+                const t = f.t !== undefined ? f.t : (f.time !== undefined ? f.time : i / 30.0);
 
                 const joints = {};
                 for (let k in f.joints) {
                     joints[k] = { ...f.joints[k] };
+                    const pt = joints[k];
+                    if (pt && typeof pt.x === 'number') {
+                        if (pt.x < minX) minX = pt.x;
+                        if (pt.x > maxX) maxX = pt.x;
+                        if (pt.y < minY) minY = pt.y;
+                        if (pt.y > maxY) maxY = pt.y;
+                        if (pt.z < minZ) minZ = pt.z;
+                        if (pt.z > maxZ) maxZ = pt.z;
+                    }
                 }
 
-                let ball = { ...joints.hand };
+                // Fill synthetic nodes if missing
+                if (!joints.waist && joints.pelvis_c) {
+                    joints.waist = { x: joints.pelvis_c.x + 0.02, y: joints.pelvis_c.y, z: joints.pelvis_c.z + 0.22 };
+                }
+                if (!joints.head && joints.thorax_prox) {
+                    joints.head = { x: joints.thorax_prox.x, y: joints.thorax_prox.y, z: joints.thorax_prox.z + 0.18 };
+                }
+
+                let ball = { ...(joints.hand || joints.wrist || { x: 0, y: 0, z: 1.5 }) };
                 let isBallReleased = false;
-                if (t > br_time) {
+                if (t > br_val) {
                     isBallReleased = true;
-                    const elapsed = t - br_time;
+                    const elapsed = t - br_val;
                     ball.x = hand_br.x + ballSpeedMs * elapsed;
                     ball.y = hand_br.y - 0.22 * elapsed;
                     ball.z = Math.max(0.05, hand_br.z - 0.5 * 9.8 * (elapsed ** 2));
                 }
 
-                const pVec = {
-                    x: joints.lead_hip.x - joints.rear_hip.x,
-                    y: joints.lead_hip.y - joints.rear_hip.y
-                };
-                const sVec = {
-                    x: joints.glove_shoulder.x - joints.shoulder.x,
-                    y: joints.glove_shoulder.y - joints.shoulder.y
-                };
-                let xFactorDeg = (Math.atan2(pVec.y, pVec.x) - Math.atan2(sVec.y, sVec.x)) * 180 / Math.PI;
-                if (xFactorDeg > 180) xFactorDeg -= 360;
-                if (xFactorDeg < -180) xFactorDeg += 360;
+                let xFactorDeg = 0;
+                if (seriesData && seriesData.separationAngles && i < seriesData.separationAngles.length) {
+                    xFactorDeg = seriesData.separationAngles[i];
+                }
 
                 trajectory.push({
                     t,
@@ -954,15 +1053,38 @@
                     wristSpeed: seriesData ? seriesData.wristSpeeds[i] : 0
                 });
             }
+
+            if (minX !== 999) {
+                const spanX = Math.max(1.1, maxX - minX);
+                const spanY = Math.max(0.7, maxY - minY);
+                const spanZ = Math.max(1.3, maxZ - minZ);
+                motionBounds = {
+                    minX, maxX, minY, maxY, minZ, maxZ,
+                    centerX: (minX + maxX) / 2.0,
+                    centerY: (minY + maxY) / 2.0,
+                    centerZ: Math.max(0.85, (minZ + maxZ) / 2.0),
+                    spanX, spanY, spanZ
+                };
+            }
         }
 
+        // Global View & Camera Settings State
+        const viewSettings = {
+            mode: 'manual',            // 'auto' | 'manual'
+            zoomMultiplier: 2.0,       // 0.5x ~ 2.5x (default: 2.00x)
+            perspectiveStrength: 0.0,  // 0.0 (Orthographic) ~ 1.0 (Full perspective)
+            cameraDistance: 7.0,       // 2.0m ~ 10.0m (default: 7.0m)
+            targetOffsetY: 0.0,
+            targetOffsetZ: 0.0
+        };
+
         // -------------------------------------------------------------
-        // 3D Projection & Multi-Perspective Render Engine
+        // 3D Perspective Projection Engine (Pitcher Coord System)
         // -------------------------------------------------------------
         function project3D(pt, w, h, yaw, pitch, zoom, target) {
             const dx = pt.x - target.x;
-            const dy = pt.y - target.y;
-            const dz = pt.z - target.z;
+            const dy = pt.y - (target.y + viewSettings.targetOffsetY);
+            const dz = pt.z - (target.z + viewSettings.targetOffsetZ);
 
             // Horizontal Yaw
             const rx = dx * Math.cos(yaw) - dy * Math.sin(yaw);
@@ -972,9 +1094,13 @@
             const rx2 = rx * Math.cos(pitch) + dz * Math.sin(pitch);
             const rz2 = -rx * Math.sin(pitch) + dz * Math.cos(pitch);
 
-            // Perspective divisor
-            const dist = 3.6 - rx2;
-            const scale = zoom / Math.max(0.4, dist);
+            // Perspective divisor with adjustable strength & camera distance
+            // When perspectiveStrength = 0: Perfect Orthographic Projection (zero perspective distortion)
+            // When perspectiveStrength > 0: Controllable natural perspective
+            const baseDist = Math.max(1.0, viewSettings.cameraDistance || 5.0);
+            const strength = viewSettings.perspectiveStrength !== undefined ? viewSettings.perspectiveStrength : 0.15;
+            const dist = Math.max(0.4, baseDist - rx2 * strength);
+            const scale = zoom / dist;
 
             const screenX = (w / 2) + ry * scale;
             const screenY = (h / 2) - rz2 * scale;
@@ -1007,18 +1133,45 @@
             ctx.stroke();
         }
 
-        function renderSingleView(ctx, canvas, frame, yaw, pitch, zoom, isTopView = false) {
+        function renderSingleView(ctx, canvas, frame, yaw, pitch, customZoom = null, isTopView = false, viewType = '3b') {
             const dpr = window.devicePixelRatio || 1;
             const w = canvas.width / dpr;
             const h = canvas.height / dpr;
             ctx.clearRect(0, 0, w, h);
 
-            // Center tightly on pelvis/body center to maximize figure size
-            const target = {
-                x: frame.joints.pelvis_c.x,
-                y: isTopView ? frame.joints.pelvis_c.y : (frame.joints.pelvis_c.y * 0.5),
-                z: isTopView ? 0.95 : 0.80
+            if (!frame || !frame.joints) return;
+
+            let target = {
+                x: motionBounds.centerX,
+                y: motionBounds.centerY,
+                z: motionBounds.centerZ
             };
+
+            const baseDist = Math.max(1.0, viewSettings.cameraDistance || 5.0);
+            let zoom = customZoom;
+
+            if (!zoom) {
+                if (viewSettings.mode === 'auto') {
+                    let fitSpan = 1.6;
+                    if (viewType === 'top') {
+                        fitSpan = Math.max(motionBounds.spanX, motionBounds.spanY * 1.5);
+                        target.z = 0.95;
+                    } else if (viewType === 'catcher') {
+                        fitSpan = Math.max(motionBounds.spanY * 1.4, motionBounds.spanZ);
+                    } else { // '3b' side view
+                        fitSpan = Math.max(motionBounds.spanX * 0.95, motionBounds.spanZ);
+                    }
+                    const minDim = Math.min(w * 1.15, h);
+                    zoom = (minDim * 0.90 / Math.max(0.6, fitSpan)) * baseDist * viewSettings.zoomMultiplier;
+                } else {
+                    // Manual mode
+                    let baseZoom = 240;
+                    if (viewType === 'top') baseZoom = 260;
+                    else if (viewType === 'catcher') baseZoom = 250;
+                    else baseZoom = 250;
+                    zoom = (baseZoom * (minDim => Math.min(w, h) / 300)()) * baseDist * 0.22 * viewSettings.zoomMultiplier;
+                }
+            }
 
             // 1. Compact Grid Lines
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
@@ -1321,10 +1474,10 @@
             const frame = trajectory[index];
             if (!frame) return;
 
-            // 1. Update 3D Views (Top / 3rd Base / Catcher)
-            renderSingleView(ctxTop, canvasTop, frame, 1.5708, 1.55, 530, true);
-            renderSingleView(ctx3rd, canvas3rd, frame, 1.5708, 0.0, 430, false);
-            renderSingleView(ctxCatcher, canvasCatcher, frame, 0.0, 0.08, 420, false);
+            // 1. Update 3D Views (Top / 3rd Base / Catcher) with Dynamic Auto-Framing & Zoom
+            renderSingleView(ctxTop, canvasTop, frame, 1.5708, 1.55, null, true, 'top');
+            renderSingleView(ctx3rd, canvas3rd, frame, 1.5708, 0.0, null, false, '3b');
+            renderSingleView(ctxCatcher, canvasCatcher, frame, 0.0, 0.08, null, false, 'catcher');
 
             // 2. Update Unified Synchronized Chart
             renderChartUnified(frame.t);
@@ -1487,10 +1640,113 @@
             });
         });
 
+        // -------------------------------------------------------------
+        // View & Camera Settings Modal Event Listeners
+        // -------------------------------------------------------------
+        const btnViewSettings = document.getElementById('btn-view-settings');
+        const viewSettingsModal = document.getElementById('view-settings-modal');
+        const closeViewSettings = document.getElementById('close-view-settings');
+        const btnCloseViewSettings = document.getElementById('btn-close-view-settings');
+        const btnResetViewSettings = document.getElementById('btn-reset-view-settings');
+
+        const modeAuto = document.getElementById('mode-auto');
+        const modeManual = document.getElementById('mode-manual');
+        const rngZoomMult = document.getElementById('rng-zoom-mult');
+        const txtZoomVal = document.getElementById('txt-zoom-val');
+        const rngPerspStrength = document.getElementById('rng-persp-strength');
+        const txtPerspVal = document.getElementById('txt-persp-val');
+        const rngCamDist = document.getElementById('rng-cam-dist');
+        const txtCamDistVal = document.getElementById('txt-camdist-val');
+
+        if (btnViewSettings) {
+            btnViewSettings.addEventListener('click', () => {
+                viewSettingsModal.style.display = 'block';
+            });
+        }
+
+        const hideViewSettingsModal = () => {
+            viewSettingsModal.style.display = 'none';
+        };
+
+        if (closeViewSettings) closeViewSettings.addEventListener('click', hideViewSettingsModal);
+        if (btnCloseViewSettings) btnCloseViewSettings.addEventListener('click', hideViewSettingsModal);
+
+        // Zoom Mode Radio Handlers
+        if (modeAuto && modeManual) {
+            modeAuto.addEventListener('change', () => {
+                if (modeAuto.checked) {
+                    viewSettings.mode = 'auto';
+                    renderCurrentFrame();
+                }
+            });
+            modeManual.addEventListener('change', () => {
+                if (modeManual.checked) {
+                    viewSettings.mode = 'manual';
+                    renderCurrentFrame();
+                }
+            });
+        }
+
+        // Live Zoom Multiplier Slider
+        if (rngZoomMult) {
+            rngZoomMult.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                viewSettings.zoomMultiplier = val;
+                txtZoomVal.textContent = `${val.toFixed(2)}x`;
+                renderCurrentFrame();
+            });
+        }
+
+        // Live Perspective Strength Slider
+        if (rngPerspStrength) {
+            rngPerspStrength.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                viewSettings.perspectiveStrength = val;
+                let desc = "Orthographic / No Distortion";
+                if (val <= 0.02) desc = "Orthographic / No Distortion";
+                else if (val <= 0.15) desc = "Natural";
+                else if (val <= 0.45) desc = "Medium";
+                else desc = "Strong";
+                txtPerspVal.textContent = `${Math.round(val * 100)}% (${desc})`;
+                renderCurrentFrame();
+            });
+        }
+
+        // Live Camera Distance Slider
+        if (rngCamDist) {
+            rngCamDist.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                viewSettings.cameraDistance = val;
+                txtCamDistVal.textContent = `${val.toFixed(1)} m`;
+                renderCurrentFrame();
+            });
+        }
+
+        // Reset View Settings
+        if (btnResetViewSettings) {
+            btnResetViewSettings.addEventListener('click', () => {
+                viewSettings.mode = 'manual';
+                viewSettings.zoomMultiplier = 2.0;
+                viewSettings.perspectiveStrength = 0.0;
+                viewSettings.cameraDistance = 7.0;
+
+                if (modeManual) modeManual.checked = true;
+                if (modeAuto) modeAuto.checked = false;
+                if (rngZoomMult) rngZoomMult.value = "2.0";
+                if (txtZoomVal) txtZoomVal.textContent = "2.00x";
+                if (rngPerspStrength) rngPerspStrength.value = "0.0";
+                if (txtPerspVal) txtPerspVal.textContent = "0% (Orthographic / No Distortion)";
+                if (rngCamDist) rngCamDist.value = "7.0";
+                if (txtCamDistVal) txtCamDistVal.textContent = "7.0 m";
+
+                renderCurrentFrame();
+            });
+        }
+
         // Dataset Modal
         const modal = document.getElementById('dataset-modal');
         const btnModal = document.getElementById('btn-dataset-info');
-        const spanClose = document.getElementsByClassName('close-modal')[0];
+        const spanClose = document.querySelectorAll('#dataset-modal .close-modal')[0];
 
         if (btnModal && modal) {
             btnModal.addEventListener('click', () => {
@@ -1516,6 +1772,9 @@
         window.addEventListener('click', (event) => {
             if (event.target === modal) {
                 modal.style.display = 'none';
+            }
+            if (event.target === viewSettingsModal) {
+                viewSettingsModal.style.display = 'none';
             }
         });
 

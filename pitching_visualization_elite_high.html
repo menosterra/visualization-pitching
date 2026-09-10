@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitching Visualization</title>
+    <title>Pitching Visualization - Elite High Slot (Standard Three-Quarter)</title>
     <meta name="description"
-        content="Compact 2x2 multi-perspective pitching mechanics visualizer based on adult male elite motion capture datasets (Driveline OBP).">
+        content="Compact 2x2 multi-perspective pitching mechanics visualizer for High Slot (Standard Three-Quarter 45°-60°) based on Driveline OBP dataset.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-    <!-- OBP Elite Motion Data -->
-    <script src="pitching_data_elite.js"></script>
+    <!-- OBP Elite Motion Data (High Slot) -->
+    <script src="pitching_data_elite_high.js"></script>
     <style>
         :root {
             --bg-color: #0b0c10;
@@ -568,8 +568,8 @@
             <h1><span>⚾</span> Pitching Visualization</h1>
             <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.4); padding: 3px 6px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08);">
                 <span style="font-size: 0.72rem; font-weight: 700; color: #8f9499; margin-left: 4px; margin-right: 2px;">Arm Slot:</span>
-                <a href="pitching_visualization_elite_low.html" style="background: var(--primary); color: #0b0c10; font-weight: 700; font-size: 0.75rem; padding: 3px 12px; border-radius: 14px; text-decoration: none;">Low Slot (Side/Low 3/4)</a>
-                <a href="pitching_visualization_elite_high.html" style="background: rgba(255,255,255,0.06); color: var(--text-main); font-size: 0.75rem; padding: 3px 12px; border-radius: 14px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">High Slot (Three-Quarter)</a>
+                <a href="pitching_visualization_elite_low.html" style="background: rgba(255,255,255,0.06); color: var(--text-main); font-size: 0.75rem; padding: 3px 12px; border-radius: 14px; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Low Slot (Side/Low 3/4)</a>
+                <a href="pitching_visualization_elite_high.html" style="background: var(--primary); color: #0b0c10; font-weight: 700; font-size: 0.75rem; padding: 3px 12px; border-radius: 14px; text-decoration: none;">High Slot (Three-Quarter)</a>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -761,80 +761,66 @@
     <div id="dataset-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Dataset Profile</h2>
+            <h2>Dataset Profile: Elite High Slot (Standard Three-Quarter)</h2>
             <div class="modal-body">
-                <p>The biomechanical motion capture data rendered in this analyzer is sourced from elite-level pitching
-                    cohorts in the <strong>Driveline OpenBiomechanics Project (OBP)</strong>.</p>
+                <p>The biomechanical motion capture data rendered in this analyzer is sourced from adult male elite pitchers in the <strong>Driveline OpenBiomechanics Project (OBP)</strong> representing the <strong>High Slot (Standard Three-Quarter, 45°–60°)</strong> profile.</p>
 
                 <div class="profile-section">
-                    <h4>1. Subject Population</h4>
+                    <h4>1. Subject Population & Pitch Metadata</h4>
                     <ul>
-                        <li><strong>Cohort Group:</strong> Elite collegiate and professional baseball pitchers.</li>
-                        <li><strong>Pitch Velocity:</strong> 151.9 km/h (94.4 mph) fastball release speed.</li>
-                        <li><strong>Standard Anthropometrics:</strong> Adult males, age 21.4 ± 2.1 years, height 1.88 ±
-                            0.06 m, weight 89.2 ± 8.4 kg.</li>
-                        <li><strong>Throwing Arm:</strong> Right-handed pitchers throwing standard 5oz baseballs from a
-                            regulation mound.</li>
+                        <li><strong>Pitching Arm Slot:</strong> High Slot (Measured Arm Angle: <strong>48.1°</strong>)</li>
+                        <li><strong>Session ID:</strong> OBP-1688_1 (Adult Male Elite Pitcher - Real Optical MoCap)</li>
+                        <li><strong>Fastball Velocity:</strong> 149.8 km/h (93.1 mph)</li>
+                        <li><strong>Release Height:</strong> ~1.58 m | <strong>Trunk Lateral Tilt:</strong> 12.6°</li>
+                        <li><strong>Standard Anthropometrics:</strong> Adult Male Collegiate/Pro Level, Right-Handed Fastball.</li>
                     </ul>
                 </div>
 
                 <div class="profile-section">
-                    <h4>2. Elite Kinematic Benchmarks (OBP Measured Means)</h4>
+                    <h4>2. Elite Kinematic Benchmarks (High Slot)</h4>
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Biomechanical Metric</th>
-                                <th>Elite Mean Range</th>
+                                <th>Measured / Benchmark Value</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>Pitch Fastball Velocity</td>
-                                <td>$$151.9 \text{ km/h} \quad (94.4 \text{ mph})$$</td>
+                                <td>$$149.8 \text{ km/h} \quad (93.1 \text{ mph})$$</td>
+                            </tr>
+                            <tr>
+                                <td>Release Arm Angle</td>
+                                <td>$$48.1^\circ \quad (\text{Standard Three-Quarter})$$</td>
+                            </tr>
+                            <tr>
+                                <td>Trunk Lateral Flexion at Release</td>
+                                <td>$$12.6^\circ \quad (\text{Natural Lateral Tilt})$$</td>
                             </tr>
                             <tr>
                                 <td>Peak Pelvis Angular Velocity</td>
-                                <td>$$590 \pm 80^\circ/s \quad (\approx 10.3 \text{ rad/s})$$</td>
+                                <td>$$610 \pm 70^\circ/s \quad (\approx 10.6 \text{ rad/s})$$</td>
                             </tr>
                             <tr>
                                 <td>Peak Torso Angular Velocity</td>
-                                <td>$$1,150 \pm 80^\circ/s \quad (\approx 20.1 \text{ rad/s})$$</td>
+                                <td>$$1,180 \pm 75^\circ/s \quad (\approx 20.6 \text{ rad/s})$$</td>
                             </tr>
                             <tr>
                                 <td>Peak Shoulder Internal Rotation</td>
-                                <td>$$7,000 \pm 1,000^\circ/s \quad (\approx 122.2 \text{ rad/s})$$</td>
-                            </tr>
-                            <tr>
-                                <td>Torso Acceleration Phase (\(\Delta t_w\))</td>
-                                <td>$$0.10 \sim 0.15 \text{ seconds}$$</td>
-                            </tr>
-                            <tr>
-                                <td>Shoulder Internal Rot. Phase (\(\Delta t_{sh}\))</td>
-                                <td>$$0.03 \sim 0.05 \text{ seconds}$$</td>
-                            </tr>
-                            <tr>
-                                <td>Stride Velocity (\(v_{stride}\))</td>
-                                <td>$$12.5 \sim 18.0 \text{ km/h}$$</td>
+                                <td>$$7,250 \pm 850^\circ/s \quad (\approx 126.5 \text{ rad/s})$$</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="profile-section">
-                    <h4>3. Capture Methodology</h4>
-                    <p>Equipped with 3D optical motion capture systems (8–12 infrared cameras operating at 240+ Hz) and
-                        inverse dynamics models using standard anthropometric segment values.</p>
-                </div>
-
-                <div class="profile-section">
-                    <h4>4. Data Source & Licensing</h4>
+                    <h4>3. Capture Methodology & Licensing</h4>
                     <p>
                         <strong>Data Source:</strong> <a href="https://openbiomechanics.org/" target="_blank"
-                            rel="noopener noreferrer" style="color: var(--primary);">Driveline OpenBiomechanics Project (OBP)</a><br>
-                        <strong>License:</strong> Distributed under <a
-                            href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"
-                            rel="noopener noreferrer" style="color: var(--primary);">Creative Commons
-                            Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a>.
+                            rel="noopener noreferrer" style="color: var(--primary);">Driveline OpenBiomechanics Project (OBP)</a> (480 Hz Optical Mocap)<br>
+                        <strong>License:</strong> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"
+                            rel="noopener noreferrer" style="color: var(--primary);">CC BY-NC-SA 4.0</a>.
                     </p>
                 </div>
             </div>
@@ -896,9 +882,9 @@
         function computeBiomechanicsSeries(data) {
             if (!data || !data.frames || data.frames.length === 0) return null;
             const frames = data.frames;
-            const pkh_time = data.pkh_time || 0.3333;
-            const fp_time = data.fp_time || 0.85;
-            const br_time = data.br_time || 0.9861;
+            const pkh_time = data.pkh_time || 0.8111;
+            const fp_time = data.fp_time || 1.5028;
+            const br_time = data.br_time || 1.6667;
 
             const times = frames.map(f => f.t);
             const pkh_idx = times.reduce((bestIdx, t, i, arr) =>
@@ -966,11 +952,9 @@
             const hipAngles = unwrapHipDeg.map(a => a - h_base);
             const shoulderAngles = unwrapShoulderDeg.map(a => a - s_base);
             const separationAngles = shoulderAngles.map((s, i) => s - hipAngles[i]);
-            const relTimes = times.map(t => t - pkh_time);
 
             return {
                 times,
-                relTimes,
                 hipAngles,
                 shoulderAngles,
                 separationAngles,
@@ -978,9 +962,6 @@
                 pkh_time,
                 fp_time,
                 br_time,
-                t_lift_plot: 0.0,
-                t_fp_plot: fp_time - pkh_time,
-                t_release_plot: br_time - pkh_time,
                 totalDuration: times[times.length - 1]
             };
         }
@@ -1325,27 +1306,17 @@
                     }
                     ctx.strokeStyle = 'rgba(239, 71, 111, 0.55)';
                     ctx.lineWidth = 2.5;
-                    ctx.setLineDash([4, 4]);
                     ctx.stroke();
-                    ctx.setLineDash([]);
                 }
             }
 
-            const pBall = project3D(frame.ball, w, h, yaw, pitch, zoom, target);
-            ctx.beginPath();
-            ctx.arc(pBall.x, pBall.y, 6, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-            ctx.lineWidth = 2.2;
-            ctx.strokeStyle = '#ef476f';
-            ctx.stroke();
+            if (frame.ball) {
+                draw3DJoint(ctx, frame.ball, w, h, yaw, pitch, zoom, target, '#ef476f', 5.5);
+            }
         }
 
         // -------------------------------------------------------------
         // Unified Synchronized Chart Rendering Engine
-        // -------------------------------------------------------------
-        // Kinematics Chart Rendering Engine (Joint Angles)
-        // Y: Rotation & Separation Angles (deg)
         // -------------------------------------------------------------
         function renderChartUnified(currT) {
             if (!seriesData) return;
@@ -1359,8 +1330,8 @@
             const graphW = w - padL - padR;
             const graphH = h - padT - padB;
 
-            const tMin = seriesData.relTimes[0];
-            const tMax = seriesData.relTimes[seriesData.relTimes.length - 1];
+            const tMin = seriesData.times[0];
+            const tMax = seriesData.times[seriesData.times.length - 1];
 
             // Scales with extended range to avoid clipping (-70° to 220°)
             const yMinAngle = -70, yMaxAngle = 220;
@@ -1398,14 +1369,14 @@
             ctx.fillStyle = '#8f9499';
             ctx.font = '600 10.5px Outfit, sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('0° = 2B Direction (from Mound Center)', padL + 8, padT + 12);
+            ctx.fillText('0° = Leg Lift (PKH) Baseline Orientation', padL + 8, padT + 12);
 
             // 2. Closed Brighter Gray Bounding Box around Plot Area
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
             ctx.lineWidth = 1.3;
             ctx.strokeRect(padL, padT, graphW, graphH);
 
-            // 3. Vertical Event Lines with Bottom Labels & Time on X-Axis (Dashed lines)
+            // 3. Vertical Event Lines with Bottom Labels & Absolute Time on X-Axis
             const drawEventLine = (tEvent, label, color) => {
                 const x = mapX(tEvent);
                 ctx.beginPath();
@@ -1422,7 +1393,6 @@
                 ctx.font = '700 11px Outfit, sans-serif';
                 ctx.textAlign = 'center';
 
-                // Shift Foot Plant to the left so the center of "Plant" aligns with line x
                 if (label === 'Foot Plant') {
                     const footWidth = ctx.measureText('Foot ').width;
                     ctx.fillText(label, x - footWidth / 2, h - padB + 13);
@@ -1430,23 +1400,23 @@
                     ctx.fillText(label, x, h - padB + 13);
                 }
 
-                // Time Value in Gray on X-Axis
+                // Time Value on X-Axis (Absolute Time matching video player)
                 ctx.fillStyle = '#9aa0a6';
                 ctx.font = '600 10px Outfit, sans-serif';
-                const timeStr = `${tEvent >= 0 ? '' : ''}${tEvent.toFixed(3)}s`;
+                const timeStr = `${tEvent.toFixed(3)}s`;
                 ctx.fillText(timeStr, x, h - padB + 24);
             };
 
-            drawEventLine(seriesData.t_lift_plot, 'Leg Lift', '#8f9499');
-            drawEventLine(seriesData.t_fp_plot, 'Foot Plant', '#06d6a0');
-            drawEventLine(seriesData.t_release_plot, 'Release', '#b5179e');
+            drawEventLine(seriesData.pkh_time, 'Leg Lift', '#8f9499');
+            drawEventLine(seriesData.fp_time, 'Foot Plant', '#06d6a0');
+            drawEventLine(seriesData.br_time, 'Release', '#b5179e');
 
             // 4. Angle Curves (Left Scale) - Solid Lines
             const drawAngleCurve = (yData, color) => {
                 ctx.beginPath();
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 2.2;
-                seriesData.relTimes.forEach((t, i) => {
+                seriesData.times.forEach((t, i) => {
                     const x = mapX(t);
                     const y = mapYAngle(yData[i]);
                     if (i === 0) ctx.moveTo(x, y);
@@ -1460,8 +1430,7 @@
             drawAngleCurve(seriesData.separationAngles, '#ffd166');
 
             // 5. Dynamic Synchronized Cursor Line & Draggable Downward Triangle Handle
-            const currRelT = currT - seriesData.pkh_time;
-            const curX = mapX(currRelT);
+            const curX = mapX(currT);
             if (curX >= padL && curX <= w - padR) {
                 // Vertical Line
                 ctx.beginPath();
